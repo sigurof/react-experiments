@@ -1,6 +1,10 @@
 import React from 'react'
-import { LGI, LGIActionButton } from '../../bootstrap/list-group/list-group-item/ListGroupItem'
+import {
+    LGI,
+    LGIActionButton,
+} from '../../bootstrap/list-group/list-group-item/ListGroupItem'
 import { LGHorizontal } from '../../bootstrap/list-group/ListGroup'
+
 export function ListGroupPractice1(): React.FunctionComponentElement<null> {
     return (
         <div>

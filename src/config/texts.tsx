@@ -1,10 +1,10 @@
 import _get from 'lodash/get'
 
-interface stringToString {
+export interface stringToStringObj {
     [key: string]: string
 }
 
-export const texts: object = {
+export const texts: stringToStringObj = {
     'no.sigurof.tab.text.c-dur': 'C-dur',
     'no.sigurof.tab.text.d-dur': 'D-dur',
     'no.sigurof.tab.text.e-dur': 'E-dur',
@@ -22,6 +22,30 @@ export const texts: object = {
     'no.sigurof.tab.pane.text.h-dur': 'Do you understand what dur means now?',
 }
 
-export function getText(key: string): string {
+export function getTextGlobal(key: string): string {
     return _get(texts, key)
+}
+
+export function getText(texts: stringToStringObj, key: string): string | null {
+    return _get(texts, key)
+}
+
+export class TextGetter {
+    private readonly textStore: stringToStringObj | undefined
+    private readonly fallback: string | undefined
+
+    constructor(textStore: stringToStringObj, fallback?: string) {
+        this.textStore = textStore
+        this.fallback = fallback
+    }
+
+    get(key: string): string  {
+        const fb = this.fallback === undefined ? '' : this.fallback
+        return this.withFallback(key, fb)
+    }
+
+    withFallback(key: string, fallback: string): string {
+        const candidateText: string | undefined = _get(this.textStore, key)
+        return candidateText !== undefined ? candidateText : fallback
+    }
 }

@@ -1,5 +1,5 @@
 import React from 'react'
-import { getText } from '../../config/texts'
+import { getTextGlobal } from '../../config/texts'
 import { TabsBuilder } from '../../bootstrap/list-group/tab/Tab'
 import { LGHorizontal } from '../../bootstrap/list-group/ListGroup'
 
@@ -11,8 +11,8 @@ export function TabsBuilderDemo(): React.FunctionComponentElement<any> {
         name: it,
         tabId: `tab-${it}`,
         paneId: `pane-${it}`,
-        tabText: getText(`no.sigurof.tab.text.${it}`),
-        paneText: getText(`no.sigurof.tab.pane.text.${it}`),
+        tabText: getTextGlobal(`no.sigurof.tab.text.${it}`),
+        paneText: getTextGlobal(`no.sigurof.tab.pane.text.${it}`),
     }))
 
     const tabs = new TabsBuilder()

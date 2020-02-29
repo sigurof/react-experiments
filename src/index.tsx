@@ -1,8 +1,14 @@
+
+// @ts-ignore
 import React from 'react';
+// @ts-ignore
 import ReactDOM from 'react-dom';
+// @ts-ignore
 import App from './App';
+// @ts-ignore
 import * as serviceWorker from './serviceWorker';
 
+// @ts-ignore
 ReactDOM.render(<App />, document.getElementById('root'));
 
 // If you want your app to work offline and load faster, you can change

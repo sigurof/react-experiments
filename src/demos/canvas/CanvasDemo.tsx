@@ -1,7 +1,11 @@
-import React, { useEffect, useLayoutEffect, useState } from 'react'
+import React from 'react'
 import './CanvasDemo.css'
 
 import { TextGetter } from '../../config/texts'
+import { Canvas, CanvasContext } from '../../component/canvas/Canvas'
+
+const CANVAS_ID = 'my-first-canvas' // TODO Make these into props
+const CANVAS_CONTAINER_ID = `canvas-container-${CANVAS_ID}`
 
 const t = new TextGetter(
     {
@@ -10,82 +14,60 @@ const t = new TextGetter(
     '[Content missing]'
 )
 
-const CANVAS_ID = 'my-first-canvas'
-const CANVAS_CONTAINER_ID = `canvas-container-${CANVAS_ID}`
-
-interface pr {
-    drawFunc: (ctx: CanvasRenderingContext2D) => void
-}
-
 export const CanvasDemo: React.FC = () => {
-    return <Canvas drawFunc={drawToCanvas} />
-}
-
-interface some {
-    canvas: HTMLCanvasElement | null | undefined
-    ctx: CanvasRenderingContext2D | null | undefined
-}
-interface cv {
-    canvas: HTMLCanvasElement | null
-}
-
-export const Canvas: React.FC<pr> = ({ drawFunc }: pr) => {
-    useResizableCanvas(drawFunc)
     return (
-        <div>
-            <div id={CANVAS_CONTAINER_ID}>
-                <canvas id={CANVAS_ID} height={1000}>
-                    {t.get('canvas-fallback-message')}
-                </canvas>
-            </div>
-        </div>
+        <Canvas
+            draw={drawToCanvas}
+            fallbackText={t.get('canvas-fallback-message')}
+            canvasId={CANVAS_ID}
+            canvasContainerId={CANVAS_CONTAINER_ID}
+        />
     )
 }
 
-function useResizableCanvas(drawFunc: (ctx: CanvasRenderingContext2D) => void) {
-    const [w, setW] = useState(0)
-    const [canvas, setCanvas] = useState((): HTMLCanvasElement | null => null)
-    const [ctx, setCtx] = useState((): CanvasRenderingContext2D | null => null)
-    useEffect(() => {
-        window.addEventListener('resize', () =>
-            setW(
-                (document.getElementById(CANVAS_CONTAINER_ID) as HTMLElement)
-                    ?.clientWidth
-            )
-        )
-    }, [])
-    useEffect(() => {
-        const cv = document.getElementById(CANVAS_ID) as HTMLCanvasElement
-        const ctx = canvas?.getContext('2d') as CanvasRenderingContext2D
-        setCanvas(cv)
-        setCtx(ctx)
-    }, [canvas, ctx])
-    useEffect(() => {
-        if (!!ctx) drawFunc(ctx)
-    }, [drawFunc, ctx])
-    useEffect(() => {
-        const canvasContainer = document.getElementById(
-            CANVAS_CONTAINER_ID
-        ) as HTMLElement
-        if (!!canvas && !!ctx)
-            resizeCanvas(canvas, canvasContainer, ctx, drawFunc)
-    }, [w, drawFunc, canvas, ctx])
+function drawToCanvas({ ctx, canvas }: CanvasContext) {
+    const d = new Draw({ ctx, canvas })
+    d.triangle()
+    d.randomSquares(50)
 }
 
-function drawToCanvas(ctx: CanvasRenderingContext2D) {
-    ctx.fillStyle = 'rgb(200, 0, 0)'
-    ctx.fillRect(50, 50, 50, 50)
+class Draw {
+    private readonly ctx: CanvasRenderingContext2D
+    private readonly canvas: HTMLCanvasElement
+    private readonly width: number
+    constructor({ ctx, canvas }: CanvasContext) {
+        this.ctx = ctx
+        this.canvas = canvas
+        this.width = (document.getElementById(
+            CANVAS_ID
+        ) as HTMLCanvasElement).width
+    }
 
-    ctx.fillStyle = 'rgba(0, 0, 200, 0.5)'
-    ctx.fillRect(55, 55, 50, 50)
+    triangle() {
+        this.ctx.moveTo(75, 50)
+        this.ctx.lineTo(100, 75)
+        this.ctx.lineTo(100, 25)
+        this.ctx.fill()
+    }
+
+    randomSquares(n: number) {
+        for (let i = 0; i < n; i++) {
+            const w = 50
+            const h = 50
+            this.ctx.fillStyle = randomColor()
+            this.ctx.fillRect(intBetween(0, this.width-50), intBetween(50, 500), w, h)
+        }
+    }
 }
 
-function resizeCanvas(
-    canvas: HTMLCanvasElement,
-    canvasContainer: HTMLElement,
-    ctx: CanvasRenderingContext2D,
-    drawFunc: Function
-) {
-    canvas.width = canvasContainer.clientWidth - 2
-    window.requestAnimationFrame(() => drawFunc(ctx))
+function randomColor(): string {
+    const vals = 'r,g,b'
+        .split(',')
+        .map(_ => intBetween(0, 255))
+        .join(', ')
+    return `rgb(${vals})`
+}
+
+function intBetween(min: number, max: number): number {
+    return Math.floor(Math.random() * (+max - +min)) + +min
 }

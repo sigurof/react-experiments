@@ -29,6 +29,19 @@ interface cv {
     canvas: HTMLCanvasElement | null
 }
 
+export const Canvas: React.FC<pr> = ({ drawFunc }: pr) => {
+    useResizableCanvas(drawFunc)
+    return (
+        <div>
+            <div id={CANVAS_CONTAINER_ID}>
+                <canvas id={CANVAS_ID} height={1000}>
+                    {t.get('canvas-fallback-message')}
+                </canvas>
+            </div>
+        </div>
+    )
+}
+
 function useResizableCanvas(drawFunc: (ctx: CanvasRenderingContext2D) => void) {
     const [w, setW] = useState(0)
     const [canvas, setCanvas] = useState((): HTMLCanvasElement | null => null)
@@ -57,19 +70,6 @@ function useResizableCanvas(drawFunc: (ctx: CanvasRenderingContext2D) => void) {
         if (!!canvas && !!ctx)
             resizeCanvas(canvas, canvasContainer, ctx, drawFunc)
     }, [w, drawFunc, canvas, ctx])
-}
-
-export const Canvas: React.FC<pr> = ({ drawFunc }: pr) => {
-    useResizableCanvas(drawFunc)
-    return (
-        <div>
-            <div id={CANVAS_CONTAINER_ID}>
-                <canvas id={CANVAS_ID} height={1000}>
-                    {t.get('canvas-fallback-message')}
-                </canvas>
-            </div>
-        </div>
-    )
 }
 
 function drawToCanvas(ctx: CanvasRenderingContext2D) {

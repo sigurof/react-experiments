@@ -31,7 +31,7 @@ interface LGIActionAProps {
     active?: boolean
     href: string
     ariaControls: string
-    children: React.ReactChildren | string,
+    children: React.ReactChildren | string
 }
 
 export const LGIActionA: React.FC<LGIActionAProps> = ({

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useState } from 'react'
 import './CanvasDemo.css'
 
 import { TextGetter } from '../../config/texts'
@@ -13,23 +13,54 @@ const t = new TextGetter(
 const CANVAS_ID = 'my-first-canvas'
 const CANVAS_CONTAINER_ID = `canvas-container-${CANVAS_ID}`
 
+interface pr {
+    drawFunc: (ctx: CanvasRenderingContext2D) => void
+}
+
 export const CanvasDemo: React.FC = () => {
     return <Canvas drawFunc={drawToCanvas} />
 }
 
-export const Canvas: React.FC<pr> = ({ drawFunc }: pr) => {
+interface some {
+    canvas: HTMLCanvasElement | null | undefined
+    ctx: CanvasRenderingContext2D | null | undefined
+}
+interface cv {
+    canvas: HTMLCanvasElement | null
+}
+
+function useResizableCanvas(drawFunc: (ctx: CanvasRenderingContext2D) => void) {
     const [w, setW] = useState(0)
-    window.addEventListener('resize', () =>
-        setW(
-            (document.getElementById(CANVAS_CONTAINER_ID) as HTMLElement)
-                ?.clientWidth
+    const [canvas, setCanvas] = useState((): HTMLCanvasElement | null => null)
+    const [ctx, setCtx] = useState((): CanvasRenderingContext2D | null => null)
+    useEffect(() => {
+        window.addEventListener('resize', () =>
+            setW(
+                (document.getElementById(CANVAS_CONTAINER_ID) as HTMLElement)
+                    ?.clientWidth
+            )
         )
-    )
-    useEffect(() => drawFunc(CANVAS_ID), [drawFunc])
-    useEffect(() => resizeCanvas(CANVAS_ID, CANVAS_CONTAINER_ID, drawFunc), [
-        w,
-        drawFunc,
-    ])
+    }, [])
+    useEffect(() => {
+        const cv = document.getElementById(CANVAS_ID) as HTMLCanvasElement
+        const ctx = canvas?.getContext('2d') as CanvasRenderingContext2D
+        setCanvas(cv)
+        setCtx(ctx)
+    }, [canvas, ctx])
+    useEffect(() => {
+        if (!!ctx) drawFunc(ctx)
+    }, [drawFunc, ctx])
+    useEffect(() => {
+        const canvasContainer = document.getElementById(
+            CANVAS_CONTAINER_ID
+        ) as HTMLElement
+        if (!!canvas && !!ctx)
+            resizeCanvas(canvas, canvasContainer, ctx, drawFunc)
+    }, [w, drawFunc, canvas, ctx])
+}
+
+export const Canvas: React.FC<pr> = ({ drawFunc }: pr) => {
+    useResizableCanvas(drawFunc)
     return (
         <div>
             <div id={CANVAS_CONTAINER_ID}>
@@ -41,9 +72,7 @@ export const Canvas: React.FC<pr> = ({ drawFunc }: pr) => {
     )
 }
 
-function drawToCanvas(canvasId: string) {
-    const canvas = document.getElementById(canvasId) as HTMLCanvasElement
-    const ctx = canvas.getContext('2d') as CanvasRenderingContext2D
+function drawToCanvas(ctx: CanvasRenderingContext2D) {
     ctx.fillStyle = 'rgb(200, 0, 0)'
     ctx.fillRect(50, 50, 50, 50)
 
@@ -52,18 +81,11 @@ function drawToCanvas(canvasId: string) {
 }
 
 function resizeCanvas(
-    canvasId: string,
-    canvasContainerId: string,
+    canvas: HTMLCanvasElement,
+    canvasContainer: HTMLElement,
+    ctx: CanvasRenderingContext2D,
     drawFunc: Function
 ) {
-    const canvasContainer = document.getElementById(
-        canvasContainerId
-    ) as HTMLElement
-    const canvas = document.getElementById(canvasId) as HTMLCanvasElement
     canvas.width = canvasContainer.clientWidth - 2
-    window.requestAnimationFrame(() => drawFunc(canvasId))
-}
-
-interface pr {
-    drawFunc: (canvasId: string) => void
+    window.requestAnimationFrame(() => drawFunc(ctx))
 }

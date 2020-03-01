@@ -17,7 +17,7 @@ const t = new TextGetter(
     {
         'canvas-fallback-message': 'Unable to display content.',
     },
-    '[Content missing]',
+    '[Content missing]'
 )
 
 const ExperimentCanvas: React.FC = () => (
@@ -48,8 +48,9 @@ function drawToCanvas({ ctx, canvas }: CanvasContext) {
 
 function experimentDraw({ ctx, canvas }: CanvasContext) {
     const d = new Draw({ ctx, canvas })
-    d.triangle()
-    d.randomSquares(50)
+    d.rectangularExample({ x: 50, y: 50 })
+    d.drawSmiley({ x: 250, y: 75 })
+    d.drawCMajor({ x: 50, y: 250 }, 500)
 }
 
 const canvasRoutes: RouteConfig[] = [
@@ -86,12 +87,12 @@ export const CanvasDemo: React.FC = () => {
                 <div className="col-2">
                     <nav>
                         <LG>
-                            <LinkMenu linkConfigs={canvasLinks}/>
+                            <LinkMenu linkConfigs={canvasLinks} />
                         </LG>
                     </nav>
                 </div>
                 <div className="col-10">
-                    <PageRenderer routeConfigs={canvasRoutes}/>
+                    <PageRenderer routeConfigs={canvasRoutes} />
                 </div>
             </div>
         </React.Fragment>

@@ -1,22 +1,22 @@
 {
   "files": {
-    "main.css": "/react-experiments/static/css/main.6083d5e4.chunk.css",
-    "main.js": "/react-experiments/static/js/main.85ebde80.chunk.js",
-    "main.js.map": "/react-experiments/static/js/main.85ebde80.chunk.js.map",
-    "runtime-main.js": "/react-experiments/static/js/runtime-main.2806a69b.js",
-    "runtime-main.js.map": "/react-experiments/static/js/runtime-main.2806a69b.js.map",
-    "static/js/2.62c46cba.chunk.js": "/react-experiments/static/js/2.62c46cba.chunk.js",
-    "static/js/2.62c46cba.chunk.js.map": "/react-experiments/static/js/2.62c46cba.chunk.js.map",
-    "index.html": "/react-experiments/index.html",
-    "precache-manifest.a98ceae535f57ee8607c7ba64feed287.js": "/react-experiments/precache-manifest.a98ceae535f57ee8607c7ba64feed287.js",
-    "service-worker.js": "/react-experiments/service-worker.js",
-    "static/css/main.6083d5e4.chunk.css.map": "/react-experiments/static/css/main.6083d5e4.chunk.css.map",
-    "static/js/2.62c46cba.chunk.js.LICENSE.txt": "/react-experiments/static/js/2.62c46cba.chunk.js.LICENSE.txt"
+    "main.css": "/sigurof/react-experiments/static/css/main.6083d5e4.chunk.css",
+    "main.js": "/sigurof/react-experiments/static/js/main.e3b06e16.chunk.js",
+    "main.js.map": "/sigurof/react-experiments/static/js/main.e3b06e16.chunk.js.map",
+    "runtime-main.js": "/sigurof/react-experiments/static/js/runtime-main.f45fb17e.js",
+    "runtime-main.js.map": "/sigurof/react-experiments/static/js/runtime-main.f45fb17e.js.map",
+    "static/js/2.62c46cba.chunk.js": "/sigurof/react-experiments/static/js/2.62c46cba.chunk.js",
+    "static/js/2.62c46cba.chunk.js.map": "/sigurof/react-experiments/static/js/2.62c46cba.chunk.js.map",
+    "index.html": "/sigurof/react-experiments/index.html",
+    "precache-manifest.0411d23c2dd89c02fc8453884cd19dfa.js": "/sigurof/react-experiments/precache-manifest.0411d23c2dd89c02fc8453884cd19dfa.js",
+    "service-worker.js": "/sigurof/react-experiments/service-worker.js",
+    "static/css/main.6083d5e4.chunk.css.map": "/sigurof/react-experiments/static/css/main.6083d5e4.chunk.css.map",
+    "static/js/2.62c46cba.chunk.js.LICENSE.txt": "/sigurof/react-experiments/static/js/2.62c46cba.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
-    "static/js/runtime-main.2806a69b.js",
+    "static/js/runtime-main.f45fb17e.js",
     "static/js/2.62c46cba.chunk.js",
     "static/css/main.6083d5e4.chunk.css",
-    "static/js/main.85ebde80.chunk.js"
+    "static/js/main.e3b06e16.chunk.js"
   ]
 }

@@ -32,9 +32,9 @@ export const LinkMenu: React.FC<LinkMenuProps> = ({
             {linkConfigs.map((it, index) => {
                 return (
                     <NavLink
+                        to={it.link}
                         key={index}
                         exact={it.exact}
-                        to={it.link}
                         onClick={it.onClick}
                         activeClassName="active"
                         className="list-group-item list-group-item-action"

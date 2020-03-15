@@ -4,11 +4,10 @@ import './CanvasDemo.css'
 import { TextGetter } from '../../config/texts'
 import { LG } from '../../bootstrap/list-group/ListGroup'
 
-import { EXPERIMENT_CANVAS_PAGE, FRONT_PAGE, SQUARES_CANVAS_PAGE } from '../../routing/routes'
+import { canvasLinks, canvasRoutes } from '../../routing/routes'
 import { LinkMenu, PageRenderer } from '../../routing/PagingLinking'
-import { RouteConfig } from '../../routing/Routing'
 import { Canvas, CanvasContext } from '../../component/canvas/Canvas'
-import { Draw } from './DemoDrawer'
+import { ChordRenderer, Draw } from './DemoDrawer'
 
 const CANVAS_ID = 'my-first-canvas'
 const CANVAS_CONTAINER_ID = `canvas-container-${CANVAS_ID}`
@@ -20,7 +19,7 @@ const t = new TextGetter(
     '[Content missing]'
 )
 
-const ExperimentCanvas: React.FC = () => (
+export const ExperimentCanvas: React.FC = () => (
     <Canvas
         draw={experimentDraw}
         fallbackText={t.get('canvas-fallback-text')}
@@ -29,7 +28,7 @@ const ExperimentCanvas: React.FC = () => (
     />
 )
 
-const SquaresCanvas: React.FC = () => (
+export const SquaresCanvas: React.FC = () => (
     <div id="squares-wrapper">
         <Canvas
             draw={drawToCanvas}
@@ -48,39 +47,14 @@ function drawToCanvas({ ctx, canvas }: CanvasContext) {
 
 function experimentDraw({ ctx, canvas }: CanvasContext) {
     const d = new Draw({ ctx, canvas })
+    const c = new ChordRenderer({ctx, canvas})
     d.rectangularExample({ x: 50, y: 50 })
     d.drawSmiley({ x: 250, y: 75 })
-    d.drawCMajor({ x: 50, y: 250 }, 500)
+    c.drawCMajor({ x: 50, y: 250 }, 500)
 }
 
-const canvasRoutes: RouteConfig[] = [
-    {
-        path: SQUARES_CANVAS_PAGE,
-        component: SquaresCanvas,
-    },
-    {
-        path: EXPERIMENT_CANVAS_PAGE,
-        component: ExperimentCanvas,
-    },
-]
-
-const canvasLinks = [
-    {
-        link: FRONT_PAGE,
-        displayName: 'Back to front',
-    },
-    {
-        exact: true,
-        link: SQUARES_CANVAS_PAGE,
-        displayName: 'Squares',
-    },
-    {
-        link: EXPERIMENT_CANVAS_PAGE,
-        displayName: 'Experiment',
-    },
-]
-
 export const CanvasDemo: React.FC = () => {
+    console.log('Canvas')
     return (
         <React.Fragment>
             <div className="row">

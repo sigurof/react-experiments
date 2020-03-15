@@ -1,4 +1,5 @@
 import { CanvasContext } from '../../component/canvas/Canvas'
+import { arrayToObject } from '../../utils/collections'
 
 export interface CanvasDemoProps {
     canvasId: string
@@ -24,6 +25,11 @@ interface PathInstruction {
     draw: (ctx: CanvasRenderingContext2D) => void
 }
 
+const LIGHT_GREY = 'rgb(230, 230, 230)'
+const GREY = 'rgb(150, 150, 150)'
+const BLACK = 'rgb(0, 0, 0)'
+const RED = 'rgb(255, 0, 0)'
+const GOLDEN_YELLOW = '#ffd700'
 // interface ArcInstr  extends PathInstruction{
 //     pos: posXY,
 //     rad: number,
@@ -100,6 +106,128 @@ class xyBuilder {
     }
 }
 
+export class ChordRenderer{
+    private readonly ctx: CanvasRenderingContext2D
+    private readonly canvas: HTMLCanvasElement
+    private readonly width: number
+    constructor({ ctx, canvas }: CanvasContext) {
+        this.ctx = ctx
+        this.canvas = canvas
+        this.width = canvas.width
+    }
+
+    filledIn(col: string, drawFunc: () => void) {
+        this.ctx.fillStyle = col
+        drawFunc()
+    }
+
+    drawLine(from: posXY, to: posXY) {
+        this.ctx.beginPath()
+        this.ctx.moveTo(from.x, from.y)
+        this.ctx.lineTo(to.x, to.y)
+        this.ctx.stroke()
+    }
+
+    drawCMajor({ x, y }: posXY, dim: number) {
+        const chordName = 'C-major'
+        const wBack = dim
+        const hBack = dim
+        const wBord = dim
+        const hBord = dim
+        const padFraction = 7
+        const padding = dim / padFraction // How much inwards from the border the strings should be
+        const xLowE = x + padding // x coordinate of low e string
+        const xHighE = x + wBord - padding // x coordinate of high e string
+        const yStartingPoints = [
+            { name: 'topPadStart', value: 0.0 }, // 0.05
+            { name: 'topPartStart', value: 0.07 }, // 0.15
+            { name: 'fretsStart', value: 0.23 }, // 0.50
+            { name: 'stringTrailStarts', value: 0.82 }, // 0.05
+            { name: 'bottomPartStarts', value: 0.88 }, // 0.05
+            { name: 'bottomPadStarts', value: 0.93 }, // 0.20
+        ].map(it => ({
+            ...it,
+            value: it.value * dim + y,
+        }))
+        const yStartPointsObj = arrayToObject(
+            yStartingPoints,
+            el => el.name,
+            el => el.value
+        )
+        const stringNames = 'E, A, D, G, H, E'.split(', ')
+        const nStrings = stringNames.length
+        const stringDistance = (xHighE - xLowE) / (nStrings - 1)
+        const xPosStrings = stringNames.map(
+            (it, index) => xLowE + index * stringDistance
+        )
+        const hGuideLines = yStartingPoints.map(it => ({
+            from: { x: xLowE, y: it.value },
+            to: { x: xHighE, y: it.value },
+        }))
+        const hLines = [
+            yStartPointsObj.fretsStart,
+            yStartPointsObj.stringTrailStarts,
+        ].map(it => ({
+            from: { x: xLowE, y: it },
+            to: { x: xHighE, y: it },
+        }))
+        const stringFromToSpec = xPosStrings.map(it => ({
+            from: { x: it, y: yStartPointsObj.fretsStart },
+            to: { x: it, y: yStartPointsObj.bottomPartStarts },
+        }))
+        const topLeft = { x, y }
+
+        const topRight = plus(topLeft, { x: wBord, y: 0 })
+        const bottomLeft = plus(topLeft, { x: 0, y: hBord })
+        const bottomRight = plus(topLeft, { x: wBord, y: hBord })
+        const neckTopLeft = plus(topLeft, { x: padding, y: padding })
+        const neckTopRight = plus(topRight, { x: -padding, y: padding })
+        // Background
+        this.filledIn(LIGHT_GREY, () => this.ctx.fillRect(x, y, wBack, hBack))
+        // Ramme
+        this.strokedIn(RED, () => this.ctx.strokeRect(x, y, wBord, hBord))
+        // Frets
+        this.strokedIn(BLACK, () =>
+            hLines.forEach(it => this.drawLine(it.from, it.to))
+        )
+        // Guitar strings
+        this.strokedIn(BLACK, () =>
+            stringFromToSpec.forEach(it => this.drawLine(it.from, it.to))
+        )
+        // Chord name
+        this.ctx.textAlign = "center"
+        this.ctx.textBaseline = "middle"
+        this.ctx.font = '48px times new roman'
+        // const textMetrics = this.ctx.measureText(chordName)
+        const desiredTextMiddle = {x: (xLowE + xHighE) / 2, y: (yStartPointsObj.topPartStart + yStartPointsObj.fretsStart)/2 }
+        this.filledIn(BLACK, () =>
+            this.ctx.fillText(chordName, desiredTextMiddle.x, desiredTextMiddle.y)
+        )
+        // const textLow = textMetrics.actualBoundingBoxDescent
+        // const text
+
+        // this.in(black, () => this.drawLine(neckTopLeft, neckTopRight))
+        // this.in(black, () => this.drawLine())
+    }
+
+    draw({ x, y }: posXY, dim: number){
+        this.drawBoundary({ x, y })
+        // this.drawFrets()
+        // this.drawStrings()
+        // this.drawGrip()
+        // this.drawChordName()
+    }
+
+    private strokedIn(col: string, drawFunc: () => void) {
+        this.ctx.strokeStyle = col
+        drawFunc()
+    }
+
+    private drawBoundary({ x, y }: posXY) {
+        // this.filledIn(LIGHT_GREY, () => this.ctx.fillRect(x, y, wBack, hBack))
+    }
+}
+
 export class Draw {
     private readonly ctx: CanvasRenderingContext2D
     private readonly canvas: HTMLCanvasElement
@@ -167,8 +295,13 @@ export class Draw {
         this.ctx.stroke()
     }
 
-    in(col: string, drawFunc: () => void) {
+    filledIn(col: string, drawFunc: () => void) {
         this.ctx.fillStyle = col
+        drawFunc()
+    }
+
+    private strokedIn(col: string, drawFunc: () => void) {
+        this.ctx.strokeStyle = col
         drawFunc()
     }
 
@@ -183,49 +316,8 @@ export class Draw {
         this.drawLine({ x: x0, y }, { x: x1, y })
     }
 
-    drawCMajor({ x, y }: posXY, dim: number) {
-        const wBack = dim
-        const hBack = dim
-        const wBord = dim
-        const hBord = dim
-        const padFraction = 6
-        const padding = dim / padFraction
-        const paddedLeft = x + padding
-        const paddedRight = x + wBord - padding
-        const yStartingPoints = [
-            { name: 'topPadStart', value: 0.0 }, // 0.05
-            { name: 'topPartStart', value: 0.07 }, // 0.15
-            { name: 'fretsStart', value: 0.25 }, // 0.50
-            { name: 'stringTrailStarts', value: 0.82 }, // 0.05
-            { name: 'bottomPartStarts', value: 0.88 }, // 0.05
-            { name: 'bottomPadStarts', value: 0.93 }, // 0.20
-        ].map(it => ({
-            ...it,
-            value: it.value * dim + y,
-        }))
-        const lineCoords = yStartingPoints.map(it => ({
-            from: { x: paddedLeft, y: it.value },
-            to: { x: paddedRight, y: it.value },
-        }))
-        const topLeft = { x, y }
-
-        const topRight = plus(topLeft, { x: wBord, y: 0 })
-        const bottomLeft = plus(topLeft, { x: 0, y: hBord })
-        const bottomRight = plus(topLeft, { x: wBord, y: hBord })
-        const neckTopLeft = plus(topLeft, { x: padding, y: padding })
-        const neckTopRight = plus(topRight, { x: -padding, y: padding })
-        const lightGrey = 'rgb(230, 230, 230)'
-        const grey = 'rgb(150, 150, 150)'
-        const black = 'rgb(0, 0, 0)'
-        this.in(lightGrey, () => this.ctx.fillRect(x, y, wBack, hBack))
-        this.in(black, () => this.ctx.strokeRect(x, y, wBord, hBord))
-        this.in(black, () => this.drawLine(topLeft, bottomRight))
-        this.ctx.strokeStyle= grey
-        lineCoords.forEach(it => this.drawLine(it.from, it.to))
-        // this.in(black, () => this.drawLine(neckTopLeft, neckTopRight))
-        // this.in(black, () => this.drawLine())
-    }
 }
+
 
 function plus(some: posXY, other: posXY) {
     return { x: some.x + other.x, y: some.y + other.y }
